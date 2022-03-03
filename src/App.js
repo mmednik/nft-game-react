@@ -1,35 +1,72 @@
-import React, { useEffect, useState } from 'react';
-import './App.css';
-import twitterLogo from './assets/twitter-logo.svg';
+import React, { useEffect, useState } from "react";
+import "./App.css";
+import twitterLogo from "./assets/twitter-logo.svg";
+import SelectCharacter from "./Components/SelectCharacter";
+import { CONTRACT_ADDRESS, transformCharacterData } from "./constants";
+import SevenLegendaryMonsters from "./utils/SevenLegendaryMonsters.json";
+import { ethers } from "ethers";
 
-const TWITTER_HANDLE = '_buildspace';
+const TWITTER_HANDLE = "_buildspace";
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 
 const App = () => {
   const [currentAccount, setCurrentAccount] = useState(null);
+  const [characterNFT, setCharacterNFT] = useState(null);
 
   const checkIfWalletIsConnected = async () => {
     try {
       const { ethereum } = window;
 
       if (!ethereum) {
-        console.log('Make sure you have MetaMask!');
+        console.log("Make sure you have MetaMask!");
         return;
       } else {
-        console.log('We have the ethereum object', ethereum);
+        console.log("We have the ethereum object", ethereum);
 
-        const accounts = await ethereum.request({ method: 'eth_accounts' });
+        const accounts = await ethereum.request({ method: "eth_accounts" });
 
         if (accounts.length !== 0) {
           const account = accounts[0];
-          console.log('Found an authorized account:', account);
+          console.log("Found an authorized account:", account);
           setCurrentAccount(account);
         } else {
-          console.log('No authorized account found');
+          console.log("No authorized account found");
         }
       }
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  // Render Methods
+  const renderContent = () => {
+    /*
+     * Scenario #1
+     */
+    if (!currentAccount) {
+      return (
+        <div className="connect-wallet-container">
+          <center>
+            <img
+              src="https://i.postimg.cc/85rD3TG5/ezgif-com-gif-maker-2.gif"
+              height={200}
+              width={150}
+              alt="Seven Legendary Monsters"
+            />
+          </center>
+          <button
+            className="cta-button connect-wallet-button"
+            onClick={connectWalletAction}
+          >
+            Connect Wallet To Get Started
+          </button>
+        </div>
+      );
+      /*
+       * Scenario #2
+       */
+    } else if (currentAccount && !characterNFT) {
+      return <SelectCharacter setCharacterNFT={setCharacterNFT} />;
     }
   };
 
@@ -38,15 +75,15 @@ const App = () => {
       const { ethereum } = window;
 
       if (!ethereum) {
-        alert('Get MetaMask!');
+        alert("Get MetaMask!");
         return;
       }
 
       const accounts = await ethereum.request({
-        method: 'eth_requestAccounts',
+        method: "eth_requestAccounts",
       });
 
-      console.log('Connected', accounts[0]);
+      console.log("Connected", accounts[0]);
       setCurrentAccount(accounts[0]);
     } catch (error) {
       console.log(error);
@@ -55,7 +92,44 @@ const App = () => {
 
   useEffect(() => {
     checkIfWalletIsConnected();
+
+    const checkNetwork = async () => {
+      try {
+        if (window.ethereum.networkVersion !== "4") {
+          alert("Please connect to Rinkeby!");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
   }, []);
+
+  useEffect(() => {
+    const fetchNFTMetadata = async () => {
+      console.log("Checking for Character NFT on address:", currentAccount);
+
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const gameContract = new ethers.Contract(
+        CONTRACT_ADDRESS,
+        SevenLegendaryMonsters.abi,
+        signer
+      );
+
+      const txn = await gameContract.checkIfUserHasNFT();
+      if (txn.name) {
+        console.log("User has character NFT");
+        setCharacterNFT(transformCharacterData(txn));
+      } else {
+        console.log("No character NFT found");
+      }
+    };
+
+    if (currentAccount) {
+      console.log("CurrentAccount:", currentAccount);
+      fetchNFTMetadata();
+    }
+  }, [currentAccount]);
 
   return (
     <div className="App">
@@ -63,22 +137,7 @@ const App = () => {
         <div className="header-container">
           <p className="header gradient-text">👹 Seven Legenday Monsters 👹</p>
           <p className="sub-text">Team up to protect the Litoral!</p>
-          <div className="connect-wallet-container">
-            <center>
-              <img
-                src="https://i.postimg.cc/85rD3TG5/ezgif-com-gif-maker-2.gif"
-                height={200}
-                width={150}
-                alt="Monty Python Gif"
-              />
-            </center>
-            <button
-              className="cta-button connect-wallet-button"
-              onClick={connectWalletAction}
-            >
-              Connect Wallet To Get Started
-            </button>
-          </div>
+          {renderContent()}
         </div>
         <div className="footer-container">
           <img alt="Twitter Logo" className="twitter-logo" src={twitterLogo} />
