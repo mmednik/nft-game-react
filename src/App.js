@@ -3,6 +3,7 @@ import "./App.css";
 import twitterLogo from "./assets/twitter-logo.svg";
 import SelectCharacter from "./Components/SelectCharacter";
 import Arena from "./Components/Arena";
+import LoadingIndicator from './Components/LoadingIndicator';
 import { CONTRACT_ADDRESS, transformCharacterData } from "./constants";
 import SevenLegendaryMonsters from "./utils/SevenLegendaryMonsters.json";
 import { ethers } from "ethers";
@@ -13,6 +14,7 @@ const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 const App = () => {
   const [currentAccount, setCurrentAccount] = useState(null);
   const [characterNFT, setCharacterNFT] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const checkIfWalletIsConnected = async () => {
     try {
@@ -20,6 +22,7 @@ const App = () => {
 
       if (!ethereum) {
         console.log("Make sure you have MetaMask!");
+        setIsLoading(false);
         return;
       } else {
         console.log("We have the ethereum object", ethereum);
@@ -37,10 +40,14 @@ const App = () => {
     } catch (error) {
       console.log(error);
     }
+    setIsLoading(false);
   };
 
   // Render Methods
   const renderContent = () => {
+    if (isLoading) {
+      return <LoadingIndicator />;
+    }
     if (!currentAccount) {
       return (
         <div className="connect-wallet-container">
@@ -63,7 +70,9 @@ const App = () => {
     } else if (currentAccount && !characterNFT) {
       return <SelectCharacter setCharacterNFT={setCharacterNFT} />;
     } else if (currentAccount && characterNFT) {
-      return <Arena characterNFT={characterNFT} setCharacterNFT={setCharacterNFT} />;
+      return (
+        <Arena characterNFT={characterNFT} setCharacterNFT={setCharacterNFT} />
+      );
     }
   };
 
@@ -88,6 +97,8 @@ const App = () => {
   };
 
   useEffect(() => {
+
+    setIsLoading(true);
     checkIfWalletIsConnected();
 
     const checkNetwork = async () => {
@@ -120,6 +131,7 @@ const App = () => {
       } else {
         console.log("No character NFT found");
       }
+      setIsLoading(false);
     };
 
     if (currentAccount) {
@@ -127,6 +139,7 @@ const App = () => {
       fetchNFTMetadata();
     }
   }, [currentAccount]);
+
 
   return (
     <div className="App">
