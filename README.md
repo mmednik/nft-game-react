@@ -1,15 +1,28 @@
-# buildspace NFT Game Project
+# Seven Legenday Monsters (NFT game)
+## _Simple React app for NFT game_
 
-### **Welcome 👋**
-To get started with this course, clone this repo and follow these commands:
+Very simple implementation of a dApp for Seven Legenday Monsters, a NFT game.
 
-1. Run `npm install` at the root of your directory
-2. Run `npm run start` to start the project
-3. Start coding!
+## Features
 
-### What is the `.vscode` Folder?
-If you use VSCode to build your app, we included a list of suggested extensions that will help you build this project! Once you open this project in VSCode, you will see a popup asking if you want to download the recommended extensions :).
+- Metamask login & switch network if needed
+- Mint your character/NFT
+- Attak boss & getting attacked
 
 
-### **Questions?**
-Have some questions make sure you head over to your [buildspace Dashboard](https://app.buildspace.so/courses/CO5cc2751b-e878-41c4-99fa-a614dc910ee9) and link your Discord account so you can get access to helpful channels teaching assistants, and your instructor!
+## Tech
+
+- [React](https://reactjs.org/) - A JavaScript library for building user interfaces.
+- [Ethers](https://docs.ethers.io/v5/getting-started/) - The ethers.js library aims to be a complete and compact library for interacting with the Ethereum Blockchain and its ecosystem. It was originally designed for use with ethers.io and has since expanded into a more general-purpose library.
+
+
+## Live
+
+Test live app: [https://sevenlegendarymonsters.vercel.app/](https://sevenlegendarymonsters.vercel.app/)
+
+
+## License
+
+MIT
+
+**Open Software, Hell Yeah!**
